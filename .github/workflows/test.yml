@@ -1,0 +1,74 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # 既定構成（H2）で全テストを実行する
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run tests
+        run: mvn -B -ntp verify
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-h2
+          path: target/surefire-reports/
+
+  # postgres プロファイルでも結合テストが通ることを確認する
+  test-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: taskdb
+          POSTGRES_USER: taskapi
+          # CIの使い捨てコンテナ専用の値（実運用の認証情報ではない）
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U taskapi -d taskdb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://localhost:5432/taskdb
+      DB_USERNAME: taskapi
+      DB_PASSWORD: ci-only-password
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run integration tests on PostgreSQL
+        run: mvn -B -ntp test -Dtest=TaskApiIntegrationTest
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports-postgres
+          path: target/surefire-reports/
