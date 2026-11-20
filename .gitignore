@@ -1,0 +1,12 @@
+target/
+*.log
+
+# 接続情報などのローカル設定
+.env
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

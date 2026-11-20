@@ -1,0 +1,13 @@
+# PostgreSQL用の設定。接続情報はすべて環境変数から読み込む。
+#   DB_URL      例: jdbc:postgresql://localhost:5432/taskdb
+#   DB_USERNAME
+#   DB_PASSWORD
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      # 作例のためテーブルは自動生成する。本番運用ではFlyway等のマイグレーションに置き換える想定。
+      ddl-auto: update

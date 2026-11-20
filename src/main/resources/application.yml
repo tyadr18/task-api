@@ -1,0 +1,25 @@
+# 既定はH2のインメモリDB。起動のたびに空の状態から始まる。
+# PostgreSQLを使う場合は postgres プロファイルを有効にする（README参照）。
+spring:
+  application:
+    name: task-api
+  datasource:
+    url: jdbc:h2:mem:taskdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 100
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    encoding:
+      # レスポンスに charset=UTF-8 を明示し、クライアント側の文字化けを防ぐ
+      force-response: true

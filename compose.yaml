@@ -1,0 +1,17 @@
+# ローカル確認用のPostgreSQL。ユーザー名とパスワードは .env から読み込む。
+#   cp .env.example .env
+#   docker compose up -d
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: taskdb
+      POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME is not set}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is not set}
+    ports:
+      - "5432:5432"
+    volumes:
+      - task-api-db:/var/lib/postgresql/data
+
+volumes:
+  task-api-db:
